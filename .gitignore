@@ -1,0 +1,38 @@
+# =========================
+# Python cache
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# =========================
+# Archivos generados por el generador
+# =========================
+lexer.py
+mylexer.py
+temp_lexer.py
+
+# =========================
+# Archivos de entorno
+# =========================
+.env
+.venv/
+venv/
+
+# =========================
+# Archivos del sistema
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Configuración de VSCode
+# =========================
+.vscode/
+
+# =========================
+# Logs o temporales
+# =========================
+*.log
+*.tmp

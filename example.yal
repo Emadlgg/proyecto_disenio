@@ -1,0 +1,35 @@
+(* ====================================== *)
+(*        Mini lenguaje aritmético        *)
+(* ====================================== *)
+
+{
+# Header (se ignora en tu implementación actual)
+import sys
+}
+
+let _WS     = [ \t]+
+let DIGIT   = [0-9]
+let LETTER  = [a-z]
+let ID      = {LETTER}({LETTER}|{DIGIT})*
+let NUM     = {DIGIT}+
+let PLUS    = "+"
+let MINUS   = "-"
+let TIMES   = "*"
+let DIV     = "/"
+let LPAREN  = "("
+let RPAREN  = ")"
+
+rule gettoken =
+    {PLUS}   { return PLUS }
+  | {MINUS}  { return MINUS }
+  | {TIMES}  { return TIMES }
+  | {DIV}    { return DIV }
+  | {LPAREN} { return LPAREN }
+  | {RPAREN} { return RPAREN }
+  | {NUM}    { return NUM }
+  | {ID}     { return ID }
+
+{
+# Trailer (también ignorado por ahora)
+print("Lexer generado correctamente")
+}
