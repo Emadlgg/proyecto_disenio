@@ -1,0 +1,128 @@
+public class SistemaEstudiantes {
+
+    static int totalEstudiantes = 0;
+    static double promedioGeneral = 0.0;
+
+    public static void main(String[] args) {
+
+        // Declaracion de variables
+        int[] calificaciones = new int[5];
+        String[] nombres = new String[5];
+        boolean aprobado = false;
+        char grado = 'A';
+
+        // Inicializar calificaciones
+        calificaciones[0] = 85;
+        calificaciones[1] = 92;
+        calificaciones[2] = 78;
+        calificaciones[3] = 95;
+        calificaciones[4] = 88;
+
+        // Inicializar nombres
+        nombres[0] = "Ana";
+        nombres[1] = "Carlos";
+        nombres[2] = "Maria";
+        nombres[3] = "Jose";
+        nombres[4] = "Luis";
+
+        // Calcular promedio
+        int suma = 0;
+        for (int i = 0; i < 5; i++) {
+            suma += calificaciones[i];
+        }
+
+        promedioGeneral = suma / 5.0;
+        totalEstudiantes = 5;
+
+        // Mostrar resultados
+        System.out.println("=== Sistema de Estudiantes ===");
+        System.out.println("Total de estudiantes: " + totalEstudiantes);
+        System.out.println("Promedio general: " + promedioGeneral);
+
+        // Evaluar cada estudiante
+        for (int i = 0; i < 5; i++) {
+            aprobado = calificaciones[i] >= 70;
+
+            if (calificaciones[i] >= 90) {
+                grado = 'A';
+            } else if (calificaciones[i] >= 80) {
+                grado = 'B';
+            } else if (calificaciones[i] >= 70) {
+                grado = 'C';
+            } else {
+                grado = 'F';
+            }
+
+            System.out.println("Estudiante: " + nombres[i]);
+            System.out.println("Calificacion: " + calificaciones[i]);
+            System.out.println("Grado: " + grado);
+            System.out.println("Aprobado: " + aprobado);
+        }
+
+        // Buscar mejor estudiante
+        int mejorIndice = 0;
+        int mejorNota = calificaciones[0];
+
+        for (int i = 1; i < 5; i++) {
+            if (calificaciones[i] > mejorNota) {
+                mejorNota = calificaciones[i];
+                mejorIndice = i;
+            }
+        }
+
+        System.out.println("Mejor estudiante: " + nombres[mejorIndice]);
+        System.out.println("Con nota: " + mejorNota);
+
+        // Contar aprobados y reprobados
+        int aprobados = 0;
+        int reprobados = 0;
+
+        for (int i = 0; i < 5; i++) {
+            if (calificaciones[i] >= 70) {
+                aprobados++;
+            } else {
+                reprobados++;
+            }
+        }
+
+        System.out.println("Aprobados: " + aprobados);
+        System.out.println("Reprobados: " + reprobados);
+
+        // Operaciones bitwise y logicas
+        int flags = 0;
+        flags = flags | 1;
+        flags = flags | 2;
+        flags = flags & 3;
+        boolean activo = (flags > 0) && (totalEstudiantes > 0);
+        boolean vacio  = (flags == 0) || (totalEstudiantes == 0);
+
+        System.out.println("Flags: " + flags);
+        System.out.println("Sistema activo: " + activo);
+        System.out.println("Sistema vacio: " + vacio);
+
+        // Switch de turno
+        int turno = 2;
+        switch (turno) {
+            case 1:
+                System.out.println("Turno: Manana");
+                break;
+            case 2:
+                System.out.println("Turno: Tarde");
+                break;
+            case 3:
+                System.out.println("Turno: Noche");
+                break;
+            default:
+                System.out.println("Turno: Desconocido");
+                break;
+        }
+
+        // While con decremento
+        int contador = 10;
+        while (contador > 0) {
+            contador--;
+        }
+
+        System.out.println("Contador final: " + contador);
+    }
+}

@@ -1,0 +1,111 @@
+public class SistemaInventario {
+
+    static int totalProductos = 0;
+    static double valorTotal = 0.0;
+
+    public static void main(String[] args) {
+
+        // Declaracion correcta
+        int[] precios = new int[5];
+        String[] productos = new String[5];
+
+        precios[0] = 100;
+        precios[1] = 250;
+        precios[2] = 75;
+        precios[3] = 320;
+        precios[4] = 180;
+
+        productos[0] = "Laptop";
+        productos[1] = "Monitor";
+        productos[2] = "Teclado";
+        productos[3] = "Mouse";
+        productos[4] = "Auriculares";
+
+        // ERROR 1: @ no es operador valido en Java
+        int descuento = precios[0] @@ 10;
+
+        // ERROR 2: # no existe en Java
+        int impuesto = precios[1] # 15;
+
+        // Codigo valido entre errores
+        int suma = 0;
+        for (int i = 0; i < 5; i++) {
+            suma += precios[i];
+        }
+
+        valorTotal = suma * 1.12;
+        totalProductos = 5;
+
+        System.out.println("Total productos: " + totalProductos);
+        System.out.println("Valor total: " + valorTotal);
+
+        // ERROR 3: backtick no es valido en Java
+        String categoria = `electronica`;
+
+        // ERROR 4: signo de dolar suelto no es valido
+        double precio$ = 99.99;
+
+        // Codigo valido
+        for (int i = 0; i < 5; i++) {
+            if (precios[i] > 200) {
+                System.out.println(productos[i] + " es caro");
+            } else {
+                System.out.println(productos[i] + " es barato");
+            }
+        }
+
+        // ERROR 5: backslash suelto no es valido
+        int x = 10 \ 2;
+
+        // ERROR 6: tilde en expresion aritmetica no valida aqui
+        int y = 5 ~ 3;
+
+        // Codigo valido entre errores
+        boolean hayStock = totalProductos > 0;
+        boolean precioAlto = valorTotal > 500.0;
+
+        if (hayStock && precioAlto) {
+            System.out.println("Inventario costoso disponible");
+        } else if (hayStock && !precioAlto) {
+            System.out.println("Inventario economico disponible");
+        } else {
+            System.out.println("Sin inventario");
+        }
+
+        // ERROR 7: caracter de control invalido
+        int z = 10 § 5;
+
+        // Codigo valido al final
+        int mejor = 0;
+        for (int i = 1; i < 5; i++) {
+            if (precios[i] > precios[mejor]) {
+                mejor = i;
+            }
+        }
+
+        System.out.println("Producto mas caro: " + productos[mejor]);
+        System.out.println("Precio: " + precios[mejor]);
+
+        // Switch valido
+        int categoria2 = 3;
+        switch (categoria2) {
+            case 1:
+                System.out.println("Categoria: Basico");
+                break;
+            case 2:
+                System.out.println("Categoria: Intermedio");
+                break;
+            case 3:
+                System.out.println("Categoria: Premium");
+                break;
+            default:
+                System.out.println("Categoria: Desconocida");
+                break;
+        }
+
+        // ERROR 8: operador invalido
+        int w = 100 ¿ 50;
+
+        System.out.println("Fin del sistema de inventario");
+    }
+}

@@ -1,0 +1,125 @@
+(* ================================================ *)
+(*         Especificacion lexica de Java            *)
+(*         Para YALex - Generador de Lexers         *)
+(* ================================================ *)
+
+(* ---- Definiciones auxiliares ---- *)
+
+let _WS         = [' ''\t''\n''\r']+
+let FLOAT_LIT   = [0-9]+"."[0-9]+
+let INT_LIT     = [0-9]+
+let ID          = ([a-zA-Z]|"_"|"$")([a-zA-Z0-9]|"_"|"$")*
+let STRING_LIT  = '"'[^'"']*'"'
+let CHAR_LIT    = "'"[^"'"]"'"
+let _LINE_CMT   = "//"[^'\n']*
+let _BLOCK_CMT  = "/*"[^'*']*"*/"
+
+rule gettoken =
+
+    {_WS}           { return _WS }
+  | {_LINE_CMT}     { return _LINE_CMT }
+  | {_BLOCK_CMT}    { return _BLOCK_CMT }
+
+  | "abstract"      { return KW_ABSTRACT }
+  | "assert"        { return KW_ASSERT }
+  | "boolean"       { return KW_BOOLEAN }
+  | "break"         { return KW_BREAK }
+  | "byte"          { return KW_BYTE }
+  | "case"          { return KW_CASE }
+  | "catch"         { return KW_CATCH }
+  | "char"          { return KW_CHAR }
+  | "class"         { return KW_CLASS }
+  | "const"         { return KW_CONST }
+  | "continue"      { return KW_CONTINUE }
+  | "default"       { return KW_DEFAULT }
+  | "do"            { return KW_DO }
+  | "double"        { return KW_DOUBLE }
+  | "else"          { return KW_ELSE }
+  | "enum"          { return KW_ENUM }
+  | "extends"       { return KW_EXTENDS }
+  | "false"         { return KW_FALSE }
+  | "final"         { return KW_FINAL }
+  | "finally"       { return KW_FINALLY }
+  | "float"         { return KW_FLOAT }
+  | "for"           { return KW_FOR }
+  | "goto"          { return KW_GOTO }
+  | "if"            { return KW_IF }
+  | "implements"    { return KW_IMPLEMENTS }
+  | "import"        { return KW_IMPORT }
+  | "instanceof"    { return KW_INSTANCEOF }
+  | "int"           { return KW_INT }
+  | "interface"     { return KW_INTERFACE }
+  | "long"          { return KW_LONG }
+  | "native"        { return KW_NATIVE }
+  | "new"           { return KW_NEW }
+  | "null"          { return KW_NULL }
+  | "package"       { return KW_PACKAGE }
+  | "private"       { return KW_PRIVATE }
+  | "protected"     { return KW_PROTECTED }
+  | "public"        { return KW_PUBLIC }
+  | "return"        { return KW_RETURN }
+  | "short"         { return KW_SHORT }
+  | "static"        { return KW_STATIC }
+  | "strictfp"      { return KW_STRICTFP }
+  | "super"         { return KW_SUPER }
+  | "switch"        { return KW_SWITCH }
+  | "synchronized"  { return KW_SYNCHRONIZED }
+  | "this"          { return KW_THIS }
+  | "throw"         { return KW_THROW }
+  | "throws"        { return KW_THROWS }
+  | "transient"     { return KW_TRANSIENT }
+  | "true"          { return KW_TRUE }
+  | "try"           { return KW_TRY }
+  | "void"          { return KW_VOID }
+  | "volatile"      { return KW_VOLATILE }
+  | "while"         { return KW_WHILE }
+
+  | {FLOAT_LIT}     { return FLOAT_LIT }
+  | {INT_LIT}       { return INT_LIT }
+  | {STRING_LIT}    { return STRING_LIT }
+  | {CHAR_LIT}      { return CHAR_LIT }
+  | {ID}            { return ID }
+
+  | "=="            { return OP_EQ }
+  | "!="            { return OP_NEQ }
+  | "<="            { return OP_LEQ }
+  | ">="            { return OP_GEQ }
+  | "&&"            { return OP_AND }
+  | "||"            { return OP_OR }
+  | "++"            { return OP_INC }
+  | "--"            { return OP_DEC }
+  | "+="            { return OP_PLUS_ASSIGN }
+  | "-="            { return OP_MINUS_ASSIGN }
+  | "*="            { return OP_TIMES_ASSIGN }
+  | "/="            { return OP_DIV_ASSIGN }
+  | "%="            { return OP_MOD_ASSIGN }
+  | "<<"            { return OP_LSHIFT }
+  | ">>"            { return OP_RSHIFT }
+  | "->"            { return OP_ARROW }
+
+  | "+"             { return OP_PLUS }
+  | "-"             { return OP_MINUS }
+  | "*"             { return OP_TIMES }
+  | "/"             { return OP_DIV }
+  | "%"             { return OP_MOD }
+  | "="             { return OP_ASSIGN }
+  | "<"             { return OP_LT }
+  | ">"             { return OP_GT }
+  | "!"             { return OP_NOT }
+  | "&"             { return OP_BITAND }
+  | "|"             { return OP_BITOR }
+  | "^"             { return OP_XOR }
+  | "~"             { return OP_BITNOT }
+  | "?"             { return OP_TERNARY }
+  | ":"             { return OP_COLON }
+
+  | "("             { return LPAREN }
+  | ")"             { return RPAREN }
+  | "{"             { return LBRACE }
+  | "}"             { return RBRACE }
+  | "["             { return LBRACKET }
+  | "]"             { return RBRACKET }
+  | ";"             { return SEMICOLON }
+  | ","             { return COMMA }
+  | "."             { return DOT }
+  | "@"             { return AT }

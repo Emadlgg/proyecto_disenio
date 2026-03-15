@@ -12,6 +12,14 @@ __pycache__/
 lexer.py
 mylexer.py
 temp_lexer.py
+*_lexer.py
+
+# =========================
+# Archivos generados por el visualizador
+# =========================
+*.png
+*.pdf
+*.svg
 
 # =========================
 # Archivos de entorno

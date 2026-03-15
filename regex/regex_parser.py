@@ -1,5 +1,9 @@
 from regex.regex_node import RegexNode
 
+# Caracteres imprimibles para wildcard _ (any)
+# Excluimos ε que es solo interno
+ALL_CHARS = [chr(c) for c in range(32, 127)]
+
 
 class RegexParser:
     def __init__(self, pattern):
@@ -20,16 +24,23 @@ class RegexParser:
         self.position += 1
         return char
 
+    def expect(self, char):
+        actual = self.consume()
+        if actual != char:
+            raise Exception(f"Expected '{char}', got '{actual}' at position {self.position}")
+
     # -------------------------------------------------
     # Entrada principal
     # -------------------------------------------------
 
     def parse(self):
         node = self.parse_expression()
+        if self.peek() is not None:
+            raise Exception(f"Unexpected character '{self.peek()}' at position {self.position}")
         return node
 
     # -------------------------------------------------
-    # Nivel OR (|)
+    # Nivel OR  (|)
     # -------------------------------------------------
 
     def parse_expression(self):
@@ -51,12 +62,11 @@ class RegexParser:
 
         while True:
             next_char = self.peek()
-
-            if next_char and next_char not in "|)":
-                right = self.parse_factor()
-                node = RegexNode("CONCAT", left=node, right=right)
-            else:
+            # estos caracteres NO pueden iniciar un factor
+            if next_char is None or next_char in "|)":
                 break
+            right = self.parse_factor()
+            node = RegexNode("CONCAT", left=node, right=right)
 
         return node
 
@@ -88,45 +98,107 @@ class RegexParser:
         return node
 
     # -------------------------------------------------
-    # Base: símbolo, grupo, clase o literal
+    # Base: símbolo, grupo, clase, literal, wildcard
     # -------------------------------------------------
 
     def parse_base(self):
         char = self.peek()
 
+        if char is None:
+            raise Exception("Unexpected end of pattern")
+
         # Grupo con paréntesis
         if char == "(":
             self.consume()
             node = self.parse_expression()
-
-            if self.peek() != ")":
-                raise Exception("Missing closing parenthesis")
-
-            self.consume()
+            self.expect(")")
             return node
 
-        # Literal entre comillas "..."
-        elif char == '"':
-            return self.parse_literal()
+        # Literal entre comillas simples 'c' o '\n'
+        elif char == "'":
+            return self.parse_single_char_literal()
 
-        # Clase tipo [ ... ]
+        # Literal entre comillas dobles "string"
+        elif char == '"':
+            return self.parse_string_literal()
+
+        # Clase tipo [abc] o [a-z] o [^a-z]
         elif char == "[":
             return self.parse_character_class()
 
-        # Símbolo simple
-        elif char:
+        # Wildcard _ → cualquier carácter
+        elif char == "_":
+            self.consume()
+            return self._chars_to_or(ALL_CHARS)
+
+        # Palabra clave eof
+        elif self.pattern[self.position:self.position + 3] == "eof":
+            self.position += 3
+            return RegexNode("SYMBOL", value="eof")
+
+        # Símbolo simple (cualquier otro carácter)
+        else:
             self.consume()
             return RegexNode("SYMBOL", value=char)
 
-        else:
-            raise Exception("Unexpected end of pattern")
+    # -------------------------------------------------
+    # Literal de un solo carácter entre comillas simples
+    # Soporta: 'a'  '\n'  '\t'  '\r'  '\\'  ' '
+    # -------------------------------------------------
+
+    def parse_single_char_literal(self):
+        self.expect("'")
+
+        char = self._read_escaped_char()
+
+        # puede haber múltiples chars entre ' '  →  [' ' '\t']
+        # eso ya lo maneja parse_character_class, aquí solo 'c'
+        self.expect("'")
+
+        return RegexNode("SYMBOL", value=char)
 
     # -------------------------------------------------
-    # Clase de caracteres [a-z] o [abc]
+    # Leer un carácter, con soporte de escape \n \t \r \\
+    # -------------------------------------------------
+
+    def _read_escaped_char(self):
+        char = self.consume()
+
+        if char == "\\":
+            escaped = self.consume()
+            escape_map = {
+                "n": "\n",
+                "t": "\t",
+                "r": "\r",
+                "\\": "\\",
+                "'": "'",
+                '"': '"',
+                "0": "\0",
+            }
+            if escaped in escape_map:
+                return escape_map[escaped]
+            else:
+                # \x → solo x
+                return escaped
+
+        return char
+
+    # -------------------------------------------------
+    # Clase de caracteres:
+    #   [abc]      → OR de a, b, c
+    #   [a-z]      → OR de a..z
+    #   [^abc]     → complemento
+    #   [' '\t]    → espacio o tab (chars entre comillas simples)
     # -------------------------------------------------
 
     def parse_character_class(self):
-        self.consume()  # consumir '['
+        self.expect("[")
+
+        # Complemento [^ ... ]
+        negate = False
+        if self.peek() == "^":
+            self.consume()
+            negate = True
 
         chars = []
 
@@ -134,29 +206,71 @@ class RegexParser:
             if self.peek() is None:
                 raise Exception("Unclosed character class")
 
-            start = self.consume()
+            # Char entre comillas simples dentro de clase: [' ' '\t']
+            if self.peek() == "'":
+                self.consume()  # abrir '
+                c = self._read_escaped_char()
+                self.expect("'")  # cerrar '
+                chars.append(c)
+                continue
 
-            # Rango tipo a-z
-            if self.peek() == "-":
+            # Char entre comillas dobles dentro de clase: ["x"] → el char x
+            # Esto permite escribir [^"'"] para "cualquier cosa excepto comilla simple"
+            if self.peek() == '"':
+                self.consume()  # abrir "
+                c = self._read_escaped_char()
+                self.expect('"')  # cerrar "
+                chars.append(c)
+                continue
+
+            # Char normal o rango a-z
+            start = self._read_escaped_char()
+
+            if self.peek() == "-" and self.position + 1 < len(self.pattern) and self.pattern[self.position + 1] != "]":
                 self.consume()  # consumir '-'
-                end = self.consume()
-
+                end = self._read_escaped_char()
                 for c in range(ord(start), ord(end) + 1):
                     chars.append(chr(c))
             else:
                 chars.append(start)
 
-        self.consume()  # consumir ']'
+        self.expect("]")
 
-        if not chars:
+        if not chars and not negate:
             raise Exception("Empty character class")
 
-        # Construir OR encadenado
+        if negate:
+            chars = [c for c in ALL_CHARS if c not in chars]
+
+        if not chars:
+            raise Exception("Negated character class matches nothing")
+
+        return self._chars_to_or(chars)
+
+    # -------------------------------------------------
+    # Literal tipo "while" → concatenación de símbolos
+    # -------------------------------------------------
+
+    def parse_string_literal(self):
+        self.expect('"')
+
+        chars = []
+
+        while self.peek() != '"':
+            if self.peek() is None:
+                raise Exception("Unclosed string literal")
+            chars.append(self._read_escaped_char())
+
+        self.expect('"')
+
+        if not chars:
+            raise Exception("Empty string literal")
+
         node = RegexNode("SYMBOL", value=chars[0])
 
         for c in chars[1:]:
             node = RegexNode(
-                "OR",
+                "CONCAT",
                 left=node,
                 right=RegexNode("SYMBOL", value=c)
             )
@@ -164,31 +278,18 @@ class RegexParser:
         return node
 
     # -------------------------------------------------
-    # Literal tipo "while"
+    # Helper: construir OR encadenado desde lista de chars
     # -------------------------------------------------
 
-    def parse_literal(self):
-        self.consume()  # consumir comilla inicial
-
-        chars = []
-
-        while self.peek() != '"':
-            if self.peek() is None:
-                raise Exception("Unclosed string literal")
-
-            chars.append(self.consume())
-
-        self.consume()  # consumir comilla final
-
+    def _chars_to_or(self, chars):
         if not chars:
-            raise Exception("Empty string literal")
+            raise Exception("Cannot build OR from empty list")
 
-        # Construir concatenación
         node = RegexNode("SYMBOL", value=chars[0])
 
         for c in chars[1:]:
             node = RegexNode(
-                "CONCAT",
+                "OR",
                 left=node,
                 right=RegexNode("SYMBOL", value=c)
             )
