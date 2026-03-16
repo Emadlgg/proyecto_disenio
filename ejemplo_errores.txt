@@ -21,13 +21,7 @@ public class SistemaInventario {
         productos[3] = "Mouse";
         productos[4] = "Auriculares";
 
-        // ERROR 1: @ no es operador valido en Java
-        int descuento = precios[0] @@ 10;
-
-        // ERROR 2: # no existe en Java
-        int impuesto = precios[1] # 15;
-
-        // Codigo valido entre errores
+        // Codigo valido
         int suma = 0;
         for (int i = 0; i < 5; i++) {
             suma += precios[i];
@@ -39,11 +33,8 @@ public class SistemaInventario {
         System.out.println("Total productos: " + totalProductos);
         System.out.println("Valor total: " + valorTotal);
 
-        // ERROR 3: backtick no es valido en Java
-        String categoria = `electronica`;
-
-        // ERROR 4: signo de dolar suelto no es valido
-        double precio$ = 99.99;
+        // ERROR 1: # no existe en Java
+        int impuesto = precios[1] # 15;
 
         // Codigo valido
         for (int i = 0; i < 5; i++) {
@@ -54,13 +45,10 @@ public class SistemaInventario {
             }
         }
 
-        // ERROR 5: backslash suelto no es valido
-        int x = 10 \ 2;
+        // ERROR 2: backtick no es valido en Java
+        String categoria = `electronica`;
 
-        // ERROR 6: tilde en expresion aritmetica no valida aqui
-        int y = 5 ~ 3;
-
-        // Codigo valido entre errores
+        // Codigo valido
         boolean hayStock = totalProductos > 0;
         boolean precioAlto = valorTotal > 500.0;
 
@@ -72,10 +60,10 @@ public class SistemaInventario {
             System.out.println("Sin inventario");
         }
 
-        // ERROR 7: caracter de control invalido
-        int z = 10 § 5;
+        // ERROR 3: backslash suelto no es valido
+        int x = 10 \ 2;
 
-        // Codigo valido al final
+        // Codigo valido
         int mejor = 0;
         for (int i = 1; i < 5; i++) {
             if (precios[i] > precios[mejor]) {
@@ -85,6 +73,9 @@ public class SistemaInventario {
 
         System.out.println("Producto mas caro: " + productos[mejor]);
         System.out.println("Precio: " + precios[mejor]);
+
+        // ERROR 4: caracter especial § no valido
+        int z = 10 § 5;
 
         // Switch valido
         int categoria2 = 3;
@@ -103,8 +94,12 @@ public class SistemaInventario {
                 break;
         }
 
-        // ERROR 8: operador invalido
+        // ERROR 5: caracter especial ¿ no valido
         int w = 100 ¿ 50;
+
+        // ERROR 6: letras con tilde no son validas como identificadores
+        int año = 5;
+        String próximo = "hola";
 
         System.out.println("Fin del sistema de inventario");
     }
